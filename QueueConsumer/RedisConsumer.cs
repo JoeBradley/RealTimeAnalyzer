@@ -9,6 +9,7 @@ using System.Configuration;
 using Newtonsoft.Json;
 using cc.RealTimeAnalyzer.Models;
 using System.Threading;
+using cc.RealTimeAnalyzer.Data;
 
 namespace cc.RealTimeAnalyzer.QueueConsumer
 {
@@ -20,7 +21,7 @@ namespace cc.RealTimeAnalyzer.QueueConsumer
         private readonly RedisRepository _repository;
 
         public RedisConsumer(RedisRepository repository) {
-            _repository = repository;
+            _repository = repository;            
         }
 
         public void Receive(CancellationToken ct)

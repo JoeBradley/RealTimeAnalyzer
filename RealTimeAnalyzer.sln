@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "cc.RealTimeAnalyzer.Models"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cc.RealTimeAnalyzer.QueuePublisher", "QueuePublisher\cc.RealTimeAnalyzer.QueuePublisher.csproj", "{4380626B-3FD9-4D30-AB38-9FB93196790A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cc.RealTimeAnalyzer.DataAnalyzer", "DataAnalyzer\cc.RealTimeAnalyzer.DataAnalyzer.csproj", "{AA88BCF4-A021-45C1-9C71-5CC5360D7366}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cc.RealTimeAnalyzer.Data", "Data\cc.RealTimeAnalyzer.Data.csproj", "{AB12EBBE-0F31-4820-A4AB-474304FA0F6C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{4380626B-3FD9-4D30-AB38-9FB93196790A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4380626B-3FD9-4D30-AB38-9FB93196790A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4380626B-3FD9-4D30-AB38-9FB93196790A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA88BCF4-A021-45C1-9C71-5CC5360D7366}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA88BCF4-A021-45C1-9C71-5CC5360D7366}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA88BCF4-A021-45C1-9C71-5CC5360D7366}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA88BCF4-A021-45C1-9C71-5CC5360D7366}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB12EBBE-0F31-4820-A4AB-474304FA0F6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB12EBBE-0F31-4820-A4AB-474304FA0F6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB12EBBE-0F31-4820-A4AB-474304FA0F6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB12EBBE-0F31-4820-A4AB-474304FA0F6C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

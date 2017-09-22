@@ -5,7 +5,7 @@ using System.Web;
 using System.Configuration;
 using StackExchange.Redis;
 
-namespace cc.RealTimeAnalyzer.QueueConsumer
+namespace cc.RealTimeAnalyzer.Data
 {
     /// <summary>
     ///     Redis

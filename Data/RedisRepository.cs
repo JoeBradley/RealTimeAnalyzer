@@ -1,4 +1,4 @@
-﻿namespace cc.RealTimeAnalyzer.QueueConsumer
+﻿namespace cc.RealTimeAnalyzer.Data
 {
     using System;
     using System.Collections.Generic;
@@ -64,7 +64,7 @@
 
                 return await _context.Db.StringSetAsync($"{KeyName<TItem>()}:{id}", json);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }
