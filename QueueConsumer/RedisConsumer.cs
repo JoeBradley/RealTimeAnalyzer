@@ -41,8 +41,6 @@ namespace cc.RealTimeAnalyzer.QueueConsumer
                                   exchange: ExchangeName,
                                   routingKey: "");
 
-                Console.WriteLine(" [*] Waiting for logs.");
-
                 var consumer = new EventingBasicConsumer(channel);
 
                 consumer.Received += async (model, ea) =>
