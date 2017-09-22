@@ -21,11 +21,13 @@
     {
         private RedisDataContext _context;
 
+        RedisChannel _timespanChannel;
         // Gte a name for the datatype
         
         public RedisRepository(RedisDataContext context)
         {
             _context = context;
+            _timespanChannel = new RedisChannel($"channel:timespan", RedisChannel.PatternMode.Auto);
         }
 
         public async Task<TItem> GetItemAsync<TItem>(string id)
@@ -35,12 +37,32 @@
             return JsonConvert.DeserializeObject<TItem>(value);
         }
 
-        public async Task<bool> InsertAsync<TItem>(TItem item)
+        public async Task<bool> InsertAsync<TItem>(TItem item) where TItem : Models.GeoPoint
         {
             try
             {
+                var json = JsonConvert.SerializeObject(item);
+
                 var id = _context.Db.StringIncrement($"{KeyName<TItem>()}:id",1);
-                return await _context.Db.StringSetAsync($"{KeyName<TItem>()}:{id}", JsonConvert.SerializeObject(item));
+
+                var timespan = item.Timestamp.ToString("yyyyMMddHHmmss");
+                
+                await _context.Db.GeoAddAsync($"{KeyName<TItem>()}:geo:{id}", new GeoEntry(item.Longitude, item.Latitude, json));
+
+                await _context.Db.SetAddAsync($"{KeyName<TItem>()}:timespan:{timespan}", json);
+
+                // Publish when new timespan finished
+                var oldTimespan = _context.Db.StringGet($"{KeyName<TItem>()}:timespan)");
+                if (oldTimespan != timespan)
+                {
+                    _context.Db.StringSet($"{KeyName<TItem>()}:timespan)", timespan);
+
+                    // Notifiy that we have finished adding to the old timespan window, so analysis can be done on it: aggregation, etc.
+                    if (!string.IsNullOrEmpty(oldTimespan))
+                        await _context.Db.PublishAsync(_timespanChannel, $"{KeyName<TItem>()}:timespan:{oldTimespan}");
+                }
+
+                return await _context.Db.StringSetAsync($"{KeyName<TItem>()}:{id}", json);
             }
             catch (Exception ex)
             {

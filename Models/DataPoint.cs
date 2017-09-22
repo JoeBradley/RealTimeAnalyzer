@@ -2,8 +2,21 @@
 using System;
 
 namespace cc.RealTimeAnalyzer.Models
-{   
-    public class DataPoint
+{
+    public class TimestampPoint
+    {
+        public DateTime Timestamp { get; set; }
+    }
+
+    public class GeoPoint: TimestampPoint
+    {
+        // Geospatial
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
+    }
+
+    
+    public class DataPoint : GeoPoint
     {
         private static readonly string[] Names = { "Chris", "John", "Annette", "Leigh", "Scott", "Jarrod", "Marnie" };
         private static readonly string[] Types = { "Click", "Move", "DoubleClick", "Drag", "Drop", "Hover" };
@@ -11,15 +24,10 @@ namespace cc.RealTimeAnalyzer.Models
 
         private static Random rnd = new Random();
 
-        public DateTime Timestamp { get; set; }
         public string UserName { get; set; }
         public string Type { get; set; }
         public string Action { get; set; }
-
-        // Geospatial
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
-
+        
         // Screen position
         public double PositionX { get; set; }
         public double PositionY { get; set; }
