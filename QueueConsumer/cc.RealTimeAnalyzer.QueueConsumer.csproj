@@ -68,6 +68,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DataAnalyzer\cc.RealTimeAnalyzer.DataAnalyzer.csproj">
+      <Project>{AA88BCF4-A021-45C1-9C71-5CC5360D7366}</Project>
+      <Name>cc.RealTimeAnalyzer.DataAnalyzer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Data\cc.RealTimeAnalyzer.Data.csproj">
       <Project>{AB12EBBE-0F31-4820-A4AB-474304FA0F6C}</Project>
       <Name>cc.RealTimeAnalyzer.Data</Name>

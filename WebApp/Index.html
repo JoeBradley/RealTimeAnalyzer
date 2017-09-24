@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Real ime Analyzer</title>
+    <script src="Scripts/jquery-2.2.2.min.js"></script>
+    <script src="Scripts/jquery.signalR-2.2.2.min.js"></script>
+    <script src="/signalr/hubs"></script>
+</head>
+<body>
+    <h1>Real Time Analyzer</h1>
+    <p>
+        <span>Low: </span>
+        <span id="low"></span>&nbsp;
+        [<span id="lowMin"></span>]&nbsp;
+        [<span id="lowMax"></span>]
+    </p>
+    <p>
+        <span>High: </span>
+        <span id="high"></span>&nbsp;
+        [<span id="highMin"></span>]&nbsp;
+        [<span id="highMax"></span>]
+    </p>
+    <p>
+        <span>Data Points: </span>
+        <span id="Count">High: </span>
+    </p>
+    <script>
+            $(document).ready(function () {
+                var dataHub = $.connection.dataHub;
+
+                // Load per second timespan averages
+                dataHub.client.setData = function (data) {
+                    console.log(data);
+                    document.getElementById('high').innerHTML = data.High.Avg.toFixed(1);
+                    document.getElementById('highMin').innerHTML = parseFloat(data.High.Min).toFixed(1);
+                    document.getElementById('highMax').innerHTML = parseFloat(data.High.Max).toFixed(1);
+                    document.getElementById('low').innerHTML = parseFloat(data.Low.Avg).toFixed(1);
+                    document.getElementById('lowMin').innerHTML = parseFloat(data.Low.Min).toFixed(1);
+                    document.getElementById('lowMax').innerHTML = parseFloat(data.Low.Max).toFixed(1);
+                    document.getElementById('Count').innerHTML = data.Count;
+                };
+
+                $.connection.hub.start()
+                    .done(function () { console.log('Now connected, connection ID=' + $.connection.hub.id); })
+                    .fail(function () { console.log('Could not Connect!'); });
+            });
+    </script>
+</body>
+</html>

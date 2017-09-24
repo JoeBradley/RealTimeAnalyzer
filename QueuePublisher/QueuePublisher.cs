@@ -49,6 +49,8 @@ namespace RealTimeAnalyzer
                 Port = int.Parse(ConfigurationManager.AppSettings["RabbitMQPort"].ToString())
             };
 
+            //Console.WriteLine($"Publishing to RabbitMQ on Host: {factory.HostName}:{factory.Port}");
+
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
@@ -64,7 +66,7 @@ namespace RealTimeAnalyzer
                     basicProperties: null,
                     body: body);
 
-                //Console.WriteLine(" [x] Sent {0}", message);
+                Console.WriteLine("Message: {0}", message);
             }
         }
 

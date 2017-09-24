@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cc.RealTimeAnalyzer.DataAna
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cc.RealTimeAnalyzer.Data", "Data\cc.RealTimeAnalyzer.Data.csproj", "{AB12EBBE-0F31-4820-A4AB-474304FA0F6C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp", "WebApp\WebApp.csproj", "{15BC6BD8-675B-4B27-84DB-1EF01C300B1F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{AB12EBBE-0F31-4820-A4AB-474304FA0F6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB12EBBE-0F31-4820-A4AB-474304FA0F6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB12EBBE-0F31-4820-A4AB-474304FA0F6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15BC6BD8-675B-4B27-84DB-1EF01C300B1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15BC6BD8-675B-4B27-84DB-1EF01C300B1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15BC6BD8-675B-4B27-84DB-1EF01C300B1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15BC6BD8-675B-4B27-84DB-1EF01C300B1F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -62,10 +62,6 @@
       <Project>{2de73aaa-fa5a-48d0-ab66-9e7a412f4ca8}</Project>
       <Name>cc.RealTimeAnalyzer.Models</Name>
     </ProjectReference>
-    <ProjectReference Include="..\QueueConsumer\cc.RealTimeAnalyzer.QueueConsumer.csproj">
-      <Project>{4e6412f7-c2e5-4072-be80-16638867d944}</Project>
-      <Name>cc.RealTimeAnalyzer.QueueConsumer</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

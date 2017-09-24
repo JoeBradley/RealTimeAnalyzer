@@ -37,7 +37,7 @@
             return JsonConvert.DeserializeObject<TItem>(value);
         }
 
-        public async Task<bool> InsertAsync<TItem>(TItem item) where TItem : Models.GeoPoint
+        public void Insert<TItem>(TItem item) where TItem : Models.DataPoint
         {
             try
             {
@@ -46,29 +46,27 @@
                 var id = _context.Db.StringIncrement($"{KeyName<TItem>()}:id",1);
 
                 var timespan = item.Timestamp.ToString("yyyyMMddHHmmss");
-                
-                await _context.Db.GeoAddAsync($"{KeyName<TItem>()}:geo:{id}", new GeoEntry(item.Longitude, item.Latitude, json));
 
-                await _context.Db.SetAddAsync($"{KeyName<TItem>()}:timespan:{timespan}", json);
+                //_context.Db.StringSet($"{KeyName<TItem>()}:{id}", json);
 
-                // Publish when new timespan finished
-                var oldTimespan = _context.Db.StringGet($"{KeyName<TItem>()}:timespan)");
+                //_context.Db.GeoAdd($"{KeyName<TItem>()}:geo:{id}", new GeoEntry(item.Longitude, item.Latitude, json));
+
+                _context.Db.SetAdd($"{KeyName<TItem>()}:timespan:{timespan}", json);
+
+                // Publish to channel when new timespan finished
+                var oldTimespan = _context.Db.StringGetSet($"{KeyName<TItem>()}:timespan", timespan);
                 if (oldTimespan != timespan)
                 {
-                    _context.Db.StringSet($"{KeyName<TItem>()}:timespan)", timespan);
-
                     // Notifiy that we have finished adding to the old timespan window, so analysis can be done on it: aggregation, etc.
                     if (!string.IsNullOrEmpty(oldTimespan))
-                        await _context.Db.PublishAsync(_timespanChannel, $"{KeyName<TItem>()}:timespan:{oldTimespan}");
+                        _context.Db.Publish(_timespanChannel, $"{KeyName<TItem>()}:timespan:{oldTimespan}");
                 }
 
-                return await _context.Db.StringSetAsync($"{KeyName<TItem>()}:{id}", json);
             }
             catch (Exception)
             {
-
+                // do something
             }
-            return false;
         }
 
         private string KeyName<TItem>() => typeof(TItem).Name.ToLower();

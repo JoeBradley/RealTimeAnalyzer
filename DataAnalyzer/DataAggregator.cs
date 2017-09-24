@@ -1,6 +1,5 @@
 ﻿using cc.RealTimeAnalyzer.Data;
 using cc.RealTimeAnalyzer.Models;
-using cc.RealTimeAnalyzer.QueueConsumer;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 using System;
@@ -15,14 +14,18 @@ namespace cc.RealTimeAnalyzer.DataAnalyzer
     {
         RedisDataContext _redisContext;
         RedisChannel _timespanChannel;
+        RedisChannel _aggregateChannel;
+
         ISubscriber _subscriber;
 
         public DataAggregator(RedisDataContext redisContext)
         {
             _redisContext = redisContext;
             _timespanChannel = new RedisChannel($"channel:timespan", RedisChannel.PatternMode.Auto);
+            _aggregateChannel = new RedisChannel($"channel:timespan:sum", RedisChannel.PatternMode.Auto);
 
-            _subscriber = _redisContext.Db.Multiplexer.GetSubscriber();            
+            _subscriber = _redisContext.Db.Multiplexer.GetSubscriber();
+            BindSubscriptions();
         }
 
         private void BindSubscriptions()
@@ -35,13 +38,12 @@ namespace cc.RealTimeAnalyzer.DataAnalyzer
         private void AggregateTimespan(string timespanKey)
         {
             var members = (_redisContext.Db.SetMembers(timespanKey));
-            var dataPoints = members.Select(x => JsonConvert.DeserializeObject<DataPoint>(x.ToString()));
+            var dataPoints = members.Select(x => JsonConvert.DeserializeObject<DataPoint>(x.ToString())).ToList();
 
-            _redisContext.Db.StringSet($"timespankey:count", dataPoints.Count());
+            var aggregateDataPoint = JsonConvert.SerializeObject(new AggregateData(dataPoints));
 
-            _redisContext.Db.StringSet($"timespankey:high:avg", dataPoints.Average(x => x.High));
-            _redisContext.Db.StringSet($"timespankey:high:max", dataPoints.Max(x => x.High));
-            _redisContext.Db.StringSet($"timespankey:high:min", dataPoints.Min(x => x.High));            
+            _redisContext.Db.StringSet($"{timespanKey}:sum", aggregateDataPoint);
+            _redisContext.Db.Publish(_aggregateChannel, aggregateDataPoint);
         }
     }
 }

@@ -14,15 +14,20 @@ namespace cc.RealTimeAnalyzer.Models
         public double Latitude { get; set; }
         public double Longitude { get; set; }
     }
-
     
-    public class DataPoint : GeoPoint
+    public class DataPoint
     {
         private static readonly string[] Names = { "Chris", "John", "Annette", "Leigh", "Scott", "Jarrod", "Marnie" };
         private static readonly string[] Types = { "Click", "Move", "DoubleClick", "Drag", "Drop", "Hover" };
         private static readonly string[] Actions = { "Buy", "Sell", "Reserve", "Decline", "Reject" };
 
         private static Random rnd = new Random();
+
+        public DateTime Timestamp { get; set; }
+
+        // Geospatial
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
 
         public string UserName { get; set; }
         public string Type { get; set; }
@@ -46,8 +51,8 @@ namespace cc.RealTimeAnalyzer.Models
             this.Longitude = -180 + rnd.NextDouble() * 360;
             this.PositionX = rnd.NextDouble() * 1200;
             this.PositionY = rnd.NextDouble() * 800;
-            this.High = 583 + rnd.NextDouble() * 20;
-            this.Low = 583 + rnd.NextDouble() * 20;
+            this.High = 500 + (rnd.NextDouble() * 100);
+            this.Low = 500 + (rnd.NextDouble() * 100);
         }
 
         public override string ToString()

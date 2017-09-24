@@ -20,7 +20,7 @@ namespace RealTimeAnalyzer
                 // Console spinner for long running task
                 timer = new Timer(state => {
                     QueuePublisher.Send(new DataPoint().ToString());
-                }, new object(), new TimeSpan(0), new TimeSpan(0, 0, 0, 0, 100));
+                }, new object(), new TimeSpan(0), new TimeSpan(0, 0, 0, 0, 10));
 
                 Console.WriteLine("Press any key to exit");
                 Console.ReadKey(false);
