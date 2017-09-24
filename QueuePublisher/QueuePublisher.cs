@@ -12,36 +12,16 @@ namespace RealTimeAnalyzer
     /// RabbitMQ test
     /// Source: https://www.rabbitmq.com/tutorials/tutorial-three-dotnet.html
     /// </summary>
-    public class QueuePublisher
+    public class QueuePublisher : IDisposable
     {
         private const string ExchangeName = "logs";
         private const string ExchangeType = "fanout";
 
-        public static void WaitAndSendAndWait()
-        {
-            Console.WriteLine(" Press [enter] to start");
-            Console.ReadLine();
+        private static IConnection _connection;
+        private static IModel _taskChannel;
+        private static IBasicProperties _taskProperties;
 
-            for (int i = 0; i < 10; i++)
-            {
-                var msg = $"Task {i}{(new string('.', i))}";
-                Send(msg);
-                System.Threading.Thread.Sleep(300 * i);
-            }
-
-            Console.WriteLine(" Press [enter] to exit");
-            Console.ReadLine();
-        }
-
-        public static void SendAndWait(string message)
-        {
-            Send(message);
-
-            Console.WriteLine(" Press [enter] to exit.");
-            Console.ReadLine();
-        }
-
-        public static void Send(string message)
+        public QueuePublisher()
         {
             var factory = new ConnectionFactory()
             {
@@ -49,10 +29,24 @@ namespace RealTimeAnalyzer
                 Port = int.Parse(ConfigurationManager.AppSettings["RabbitMQPort"].ToString())
             };
 
+            _connection = factory.CreateConnection();
+
+            _taskChannel = _connection.CreateModel();
+            _taskChannel.QueueDeclare(queue: ExchangeName,
+                    durable: true,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null);
+
+            _taskProperties = _taskChannel.CreateBasicProperties();
+            _taskProperties.Persistent = true;
+        }
+
+        public void Send(string message)
+        {
             //Console.WriteLine($"Publishing to RabbitMQ on Host: {factory.HostName}:{factory.Port}");
 
-            using (var connection = factory.CreateConnection())
-            using (var channel = connection.CreateModel())
+            using (var channel = _connection.CreateModel())
             {
                 channel.ExchangeDeclare(
                     exchange: ExchangeName,
@@ -66,10 +60,26 @@ namespace RealTimeAnalyzer
                     basicProperties: null,
                     body: body);
 
-                Console.WriteLine("Message: {0}", message);
+                // Console.WriteLine("Message: {0}", message);
             }
         }
 
+        public void SendTask(string message)
+        {
+            //Console.WriteLine($"Publishing to RabbitMQ on Host: {factory.HostName}:{factory.Port}");
 
+            var body = Encoding.UTF8.GetBytes(message);
+
+            _taskChannel.BasicPublish(exchange: "",
+                routingKey: ExchangeName,
+                basicProperties: _taskProperties,
+                body: body);
+        }
+
+        public void Dispose()
+        {
+            _taskChannel?.Dispose();
+            _connection?.Dispose();
+        }
     }
 }

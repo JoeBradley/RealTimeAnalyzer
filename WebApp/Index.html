@@ -10,20 +10,24 @@
 <body>
     <h1>Real Time Analyzer</h1>
     <p>
+        <span>Timestmp: </span>
+        <span id="timestmp">-</span>
+    </p>
+    <p>
         <span>Low: </span>
-        <span id="low"></span>&nbsp;
-        [<span id="lowMin"></span>]&nbsp;
-        [<span id="lowMax"></span>]
+        <span id="low">-</span>&nbsp;
+        [<span id="lowMin">-</span>]&nbsp;
+        [<span id="lowMax">-</span>]
     </p>
     <p>
         <span>High: </span>
-        <span id="high"></span>&nbsp;
-        [<span id="highMin"></span>]&nbsp;
-        [<span id="highMax"></span>]
+        <span id="high">-</span>&nbsp;
+        [<span id="highMin">-</span>]&nbsp;
+        [<span id="highMax">-</span>]
     </p>
     <p>
         <span>Data Points: </span>
-        <span id="Count">High: </span>
+        <span id="Count">-</span>
     </p>
     <script>
             $(document).ready(function () {
@@ -32,6 +36,7 @@
                 // Load per second timespan averages
                 dataHub.client.setData = function (data) {
                     console.log(data);
+                    document.getElementById('timestmp').innerHTML = data.Timestamp;
                     document.getElementById('high').innerHTML = data.High.Avg.toFixed(1);
                     document.getElementById('highMin').innerHTML = parseFloat(data.High.Min).toFixed(1);
                     document.getElementById('highMax').innerHTML = parseFloat(data.High.Max).toFixed(1);

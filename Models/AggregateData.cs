@@ -8,6 +8,7 @@ namespace cc.RealTimeAnalyzer.Models
 {
     public class AggregateData
     {
+        public DateTime Timestamp { get; set; }
         public int Count { get; set; }
         public AggregateDataPoint High { get; set; }
         public AggregateDataPoint Low { get; set; }
@@ -16,8 +17,9 @@ namespace cc.RealTimeAnalyzer.Models
         [JsonConstructor]
         public AggregateData() { }
 
-        public AggregateData(List<DataPoint> data)
+        public AggregateData(DateTime timestamp, List<DataPoint> data)
         {
+            Timestamp = timestamp;
             Data = data;
             Count = data.Count;
             High = new AggregateDataPoint(data.Select(x => x.High));
@@ -38,9 +40,9 @@ namespace cc.RealTimeAnalyzer.Models
         public double Min { get; set; }
         public double Max { get; set; }
 
-        public double dAvg { get; set; }
-        public double dMin { get; set; }
-        public double dMax { get; set; }
+        public double DAvg { get; set; }
+        public double DMin { get; set; }
+        public double DMax { get; set; }
 
         [JsonConstructor]
         public AggregateDataPoint() { }
@@ -53,9 +55,9 @@ namespace cc.RealTimeAnalyzer.Models
 
         public AggregateDataPoint(IEnumerable<double> values, double lastAvg, double lastMin, double lastMax) : this(values)
         {
-            dAvg = Avg - lastAvg;
-            dMin = Min - lastMin;
-            dMax = Max - lastMax;
+            DAvg = Avg - lastAvg;
+            DMin = Min - lastMin;
+            DMax = Max - lastMax;
         }
     }
 }

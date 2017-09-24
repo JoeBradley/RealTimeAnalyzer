@@ -26,7 +26,8 @@ namespace WebApp.App_Start
                     DataHubManager.Instance.SetData(JsonConvert.DeserializeObject<AggregateData>(value));
                 });
             }
-            catch (Exception ex) {
+            catch (Exception) {
+                // TODO: handle
             }
         }
     }

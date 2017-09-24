@@ -14,56 +14,102 @@ using cc.RealTimeAnalyzer.DataAnalyzer;
 
 namespace cc.RealTimeAnalyzer.QueueConsumer
 {
-    public class RedisConsumer
+    public class RedisConsumer : IDisposable
     {
         private const string ExchangeName = "logs";
         private const string ExchangeType = "fanout";
 
         private readonly RedisRepository _repository;
         private readonly DataAggregator _aggregator;
-        
-        public RedisConsumer(RedisRepository repository) {
+        private readonly ConnectionFactory _factory;
+
+        public RedisConsumer(RedisRepository repository)
+        {
             _repository = repository;
             _aggregator = new DataAggregator(new RedisDataContext());
-        }
 
-        public void Receive(CancellationToken ct)
-        {            
-            var factory = new ConnectionFactory()
+            _factory = new ConnectionFactory()
             {
                 HostName = ConfigurationManager.AppSettings["RabbitMQHost"].ToString(),
                 Port = int.Parse(ConfigurationManager.AppSettings["RabbitMQPort"].ToString())
             };
+        }
 
+        public void Dispose()
+        {
+            // _channel?.Dispose();
+            //_connection?.Dispose();
+        }
+
+        public void Receive(CancellationToken ct)
+        {
             //Console.WriteLine($"Listening to RabbitMQ on Host: {factory.HostName}:{factory.Port}");
 
-            using (var connection = factory.CreateConnection())
-            using (var channel = connection.CreateModel())
+            using (var _connection = _factory.CreateConnection())
+            using (var _channel = _connection.CreateModel())
             {
-                channel.ExchangeDeclare(exchange: ExchangeName, type: ExchangeType);
+                _channel.ExchangeDeclare(exchange: ExchangeName, type: ExchangeType);
 
-                var queueName = channel.QueueDeclare().QueueName;
-                channel.QueueBind(queue: queueName,
+                var queueName = _channel.QueueDeclare().QueueName;
+                _channel.QueueBind(queue: queueName,
                                   exchange: ExchangeName,
                                   routingKey: "");
 
-                var consumer = new EventingBasicConsumer(channel);
+                var consumer = new EventingBasicConsumer(_channel);
 
                 consumer.Received += (model, ea) =>
                 {
                     var body = ea.Body;
                     var message = Encoding.UTF8.GetString(body);
 
-                    Console.WriteLine("Messaged received from RabbitMQ: " + message);
+                    //Console.WriteLine("Messaged received from RabbitMQ: " + message);
+
                     var dataPoint = JsonConvert.DeserializeObject<DataPoint>(message);
-                    
-                    _repository.Insert(dataPoint);
+
+                    _repository.Insert(dataPoint, message);
                 };
 
-                channel.BasicConsume(queue: queueName, autoAck: true, consumer: consumer);
+                _channel.BasicConsume(queue: queueName, autoAck: true, consumer: consumer);
 
                 while (!ct.IsCancellationRequested) { Thread.Sleep(500); }
-             }
+            }
+        }
+
+        public void ReceiveTasks(CancellationToken ct)
+        {
+            //Console.WriteLine($"Listening to RabbitMQ on Host: {factory.HostName}:{factory.Port}");
+            Parallel.For(0, 5, (i) =>
+            {
+                using (var _connection = _factory.CreateConnection())
+                using (var _channel = _connection.CreateModel())
+                {
+                    _channel.QueueDeclare(queue: ExchangeName,
+                                     durable: true,
+                                     exclusive: false,
+                                     autoDelete: false,
+                                     arguments: null);
+
+                    _channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+                    
+                    var consumer = new EventingBasicConsumer(_channel);
+
+                    consumer.Received += (model, ea) =>
+                    {
+                        var body = ea.Body;
+                        var message = Encoding.UTF8.GetString(body);
+
+                        //Console.WriteLine("Messaged received from RabbitMQ: " + message);
+
+                        var dataPoint = JsonConvert.DeserializeObject<DataPoint>(message);
+
+                        _repository.Insert(dataPoint, message);
+                    };
+
+                    _channel.BasicConsume(queue: ExchangeName, autoAck: true, consumer: consumer);
+
+                    while (!ct.IsCancellationRequested) { Thread.Sleep(500); }
+                }
+            });
         }
     }
 }

@@ -37,20 +37,19 @@
             return JsonConvert.DeserializeObject<TItem>(value);
         }
 
-        public void Insert<TItem>(TItem item) where TItem : Models.DataPoint
+        public void Insert<TItem>(TItem item, string json) where TItem : Models.DataPoint
         {
             try
             {
-                var json = JsonConvert.SerializeObject(item);
+                //var json = JsonConvert.SerializeObject(item);
 
-                var id = _context.Db.StringIncrement($"{KeyName<TItem>()}:id",1);
-
-                var timespan = item.Timestamp.ToString("yyyyMMddHHmmss");
-
+                //var id = _context.Db.StringIncrement($"{KeyName<TItem>()}:id",1);
                 //_context.Db.StringSet($"{KeyName<TItem>()}:{id}", json);
-
                 //_context.Db.GeoAdd($"{KeyName<TItem>()}:geo:{id}", new GeoEntry(item.Longitude, item.Latitude, json));
 
+                var timespan = item.Timestamp.ToString("yyyyMMddHHmmss");
+                
+                //timespan = timespan.Substring(0,timespan.Length-1);
                 _context.Db.SetAdd($"{KeyName<TItem>()}:timespan:{timespan}", json);
 
                 // Publish to channel when new timespan finished
@@ -69,6 +68,6 @@
             }
         }
 
-        private string KeyName<TItem>() => typeof(TItem).Name.ToLower();
+        private string KeyName<TItem>() => "data";  // typeof(TItem).Name.ToLower();
     }
 }

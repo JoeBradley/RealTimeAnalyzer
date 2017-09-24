@@ -20,7 +20,7 @@ namespace cc.RealTimeAnalyzer.QueueConsumer
            
             var tsk = Task.Run(() =>
             {
-                consumer.Receive(ct);
+                consumer.ReceiveTasks(ct);
                 Console.WriteLine("Finished listening");
             }, ct);
 

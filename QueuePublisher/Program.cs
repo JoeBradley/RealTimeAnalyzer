@@ -11,15 +11,17 @@ namespace RealTimeAnalyzer
 {
     class Program
     {
-       private static Timer timer;
-
+        private static Timer timer;
+        private static QueuePublisher _publisher;
+        
         static void Main(string[] args)
         {
             try
             {
-                // Console spinner for long running task
+                var _publisher = new QueuePublisher();
+
                 timer = new Timer(state => {
-                    QueuePublisher.Send(new DataPoint().ToString());
+                    _publisher.SendTask(new DataPoint().ToString());
                 }, new object(), new TimeSpan(0), new TimeSpan(0, 0, 0, 0, 10));
 
                 Console.WriteLine("Press any key to exit");
@@ -28,6 +30,7 @@ namespace RealTimeAnalyzer
             catch { }
             finally
             {
+                _publisher?.Dispose();
                 timer?.Dispose();
             }
         }
