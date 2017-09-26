@@ -53,25 +53,27 @@
 
                 // Get/Set ensures that only 1 entry for each ms is stored in the second timespan bucket.  So if 2 or more entries for the same ms are created, only the latest is retained.
                 var oldJson = _context.Db.StringGetSet($"{KeyName<TItem>()}:ms:{msTimespan}", json);
+                // Set expiry of ms key
+                _context.Db.KeyExpire($"{KeyName<TItem>()}:ms:{msTimespan}", new TimeSpan(0, 0, 3));
 
                 if (string.IsNullOrEmpty(oldJson))
                 {
+                    // Add ms data point to sec bucket.  Accumulation/Analysis will be done on the bucket when full (at start of next second)
                     _context.Db.SetAdd($"{KeyName<TItem>()}:timespan:{timespan}", json);
-
+                    _context.Db.KeyExpire($"{KeyName<TItem>()}:timespan:{timespan}", new TimeSpan(0, 0, 20));
                     // keep track of keys generated for ensuring distinct ms entries.  This will be deleted at the start of the next second.
-                    _context.Db.SetAdd($"{KeyName<TItem>()}:timespan:{timespan}:keyset", $"{KeyName<TItem>()}:ms:{msTimespan}");
-
+                    //_context.Db.SetAdd($"{KeyName<TItem>()}:timespan:{timespan}:keyset", $"{KeyName<TItem>()}:ms:{msTimespan}");
                 }
 
                 // Publish to channel when new timespan finished
                 var oldTimespan = _context.Db.StringGetSet($"{KeyName<TItem>()}:timespan", timespan);
                 if (oldTimespan != timespan && !string.IsNullOrEmpty(oldTimespan))
                 {
-                    // Notifiy that we have finished adding to the old timespan window, so analysis can be done on it: aggregation, etc.
+                    // Notifiy that we have finished adding to the old timespan window, so analysis can be done on it: accumulation/aggregation/analysis, etc.
                     _context.Db.Publish(_timespanChannel, $"{KeyName<TItem>()}:timespan:{oldTimespan}");
 
                     // Delete all ms keys used for distinct ms entries that were created in the previous second
-                    _context.Db.KeyDelete($"{KeyName<TItem>()}:timespan:{oldTimespan}:keyset");
+                    //_context.Db.KeyDelete($"{KeyName<TItem>()}:timespan:{oldTimespan}:keyset");
                 }
 
             }

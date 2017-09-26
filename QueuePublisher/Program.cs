@@ -20,7 +20,7 @@ namespace RealTimeAnalyzer
             {
                 _publisher = new QueuePublisher();
 
-                Parallel.For(1, 20, (i) => {
+                Parallel.For(1, 3, (i) => {
                     Thread.Sleep(1);
                     timers.Add( new Timer(state => {
                         Parallel.For(1, 10, (x) =>
@@ -28,7 +28,7 @@ namespace RealTimeAnalyzer
                             Thread.Sleep(1);
                             _publisher.SendTask(new DataPoint().ToString());
                         });
-                    }, new object(), new TimeSpan(0), new TimeSpan(0, 0, 0, 0, 8)));
+                    }, new object(), new TimeSpan(0), new TimeSpan(0, 0, 0, 0, 10)));
 
                 });
 
