@@ -17,13 +17,13 @@
     /// see: http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/LowLevelDotNetItemCRUD.html
     /// see: https://github.com/ServiceStack/PocoDynamo
     /// </summary>
-    public class RedisRepository 
+    public class RedisRepository
     {
         private RedisDataContext _context;
 
         RedisChannel _timespanChannel;
         // Gte a name for the datatype
-        
+
         public RedisRepository(RedisDataContext context)
         {
             _context = context;
@@ -47,18 +47,31 @@
                 //_context.Db.StringSet($"{KeyName<TItem>()}:{id}", json);
                 //_context.Db.GeoAdd($"{KeyName<TItem>()}:geo:{id}", new GeoEntry(item.Longitude, item.Latitude, json));
 
+
                 var timespan = item.Timestamp.ToString("yyyyMMddHHmmss");
-                
-                //timespan = timespan.Substring(0,timespan.Length-1);
-                _context.Db.SetAdd($"{KeyName<TItem>()}:timespan:{timespan}", json);
+                var msTimespan = item.Timestamp.ToString("yyyyMMddHHmmssFFF");
+
+                // Get/Set ensures that only 1 entry for each ms is stored in the second timespan bucket.  So if 2 or more entries for the same ms are created, only the latest is retained.
+                var oldJson = _context.Db.StringGetSet($"{KeyName<TItem>()}:ms:{msTimespan}", json);
+
+                if (string.IsNullOrEmpty(oldJson))
+                {
+                    _context.Db.SetAdd($"{KeyName<TItem>()}:timespan:{timespan}", json);
+
+                    // keep track of keys generated for ensuring distinct ms entries.  This will be deleted at the start of the next second.
+                    _context.Db.SetAdd($"{KeyName<TItem>()}:timespan:{timespan}:keyset", $"{KeyName<TItem>()}:ms:{msTimespan}");
+
+                }
 
                 // Publish to channel when new timespan finished
                 var oldTimespan = _context.Db.StringGetSet($"{KeyName<TItem>()}:timespan", timespan);
-                if (oldTimespan != timespan)
+                if (oldTimespan != timespan && !string.IsNullOrEmpty(oldTimespan))
                 {
                     // Notifiy that we have finished adding to the old timespan window, so analysis can be done on it: aggregation, etc.
-                    if (!string.IsNullOrEmpty(oldTimespan))
-                        _context.Db.Publish(_timespanChannel, $"{KeyName<TItem>()}:timespan:{oldTimespan}");
+                    _context.Db.Publish(_timespanChannel, $"{KeyName<TItem>()}:timespan:{oldTimespan}");
+
+                    // Delete all ms keys used for distinct ms entries that were created in the previous second
+                    _context.Db.KeyDelete($"{KeyName<TItem>()}:timespan:{oldTimespan}:keyset");
                 }
 
             }

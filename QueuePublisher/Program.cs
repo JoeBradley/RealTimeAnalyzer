@@ -11,18 +11,26 @@ namespace RealTimeAnalyzer
 {
     class Program
     {
-        private static Timer timer;
+        private static List<Timer> timers = new List<Timer>();
         private static QueuePublisher _publisher;
         
         static void Main(string[] args)
         {
             try
             {
-                var _publisher = new QueuePublisher();
+                _publisher = new QueuePublisher();
 
-                timer = new Timer(state => {
-                    _publisher.SendTask(new DataPoint().ToString());
-                }, new object(), new TimeSpan(0), new TimeSpan(0, 0, 0, 0, 10));
+                Parallel.For(1, 20, (i) => {
+                    Thread.Sleep(1);
+                    timers.Add( new Timer(state => {
+                        Parallel.For(1, 10, (x) =>
+                        {
+                            Thread.Sleep(1);
+                            _publisher.SendTask(new DataPoint().ToString());
+                        });
+                    }, new object(), new TimeSpan(0), new TimeSpan(0, 0, 0, 0, 8)));
+
+                });
 
                 Console.WriteLine("Press any key to exit");
                 Console.ReadKey(false);
@@ -31,7 +39,7 @@ namespace RealTimeAnalyzer
             finally
             {
                 _publisher?.Dispose();
-                timer?.Dispose();
+                timers.ForEach(timer => timer?.Dispose());
             }
         }
         
